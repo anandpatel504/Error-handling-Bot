@@ -4,6 +4,7 @@ var app = express();
 var fs = require("fs");
 var bodyParser = require("body-parser")
 
+
 var d = new Date;
 var dd = d.getDate;
 var mm = d.getMonth;
@@ -14,12 +15,14 @@ var todayDate = dd.toString() + "-" + mm.toString() + "-" + yy.toString();
 app.use(express.json())
 
 app.get('/all_errors', function(req, res){
-    fs.readFile( __dirname + "/users.json", (err, data)=>{
+    fs.readFile( __dirname + "/error_handling.json", (err, data)=>{
         if (err){
             return res.json({"errorMsg":"check your json file"})
         }else{
             var mydata = JSON.parse(data);
-            return res.json(mydata["satyam18@navgurukul.org"]["python"]) 
+            // return res.json(mydata["satyam18@navgurukul.org"]["python"]) 
+            // console.log(mydata)
+            return res.send(mydata);
         }
     })
 })
@@ -29,7 +32,7 @@ app.get('/all_errors/:language', function(req, res){
     var language = req.params.language
     // console.log(language);
 
-    fs.readFile( __dirname  + "/users.json", (err, data)=>{
+    fs.readFile( __dirname  + "/error_handling.json", (err, data)=>{
         if(err){
             return res.json({"errorMsg":"check your json file"})
         }else{
@@ -41,13 +44,17 @@ app.get('/all_errors/:language', function(req, res){
 
 
 app.get('/all_errors/:language/:errorname', function(req, res){
-    fs.readFile(__dirname + "/users.json", (err, data)=>{
+    var errorname = req.params.errorname;
+    fs.readFile(__dirname + "/error_handling.json", (err, data)=>{
         console.log(req.params.errorname)
         if (err){
             return res.json({"errorMsg":"check your json file"})
         }else{
             var mydata = JSON.parse(data);
-            return res.json(mydata)
+            if (mydata.errorname == mydata.python[0]){
+                // console.log(mydata.python[0]);
+            }
+            return res.json(mydata.python[0])
         }
     })
 })
@@ -85,7 +92,7 @@ app.post('/:emailid/:errName',(req,res)=>{
     var errname=req.params.errName
     var emailId=req.params.emailid
     var newuser={}
-    var data=fs.readFileSync(__dirname + "/users.json")
+    var data=fs.readFileSync(__dirname + "/error_handling.json")
     data=data.toString();
     var course =  JSON.parse(data)
     if(course.hasOwnProperty(emailId)){
@@ -103,5 +110,6 @@ app.post('/:emailid/:errName',(req,res)=>{
 var server = app.listen(5051, function(){
     var host = server.address().address
     var port = server.address().port
+    console.log("server is running port...")
     console.log(host,port)
 })
